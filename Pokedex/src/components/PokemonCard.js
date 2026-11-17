@@ -2,34 +2,19 @@
 // Fichier : src/components/PokemonCard.js
 // La carte n'a plus de state : elle reçoit captured et onCapture en props
 
-import { Link } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 const ARTWORK =
   "https://raw.githubusercontent.com/PokeAPI/sprites" +
   "/master/sprites/pokemon/other/official-artwork/";
 
-export default function PokemonCard({
-  number,
-  name,
-  type,
-  captured,
-  onCapture,
-}) {
+export default function PokemonCard({ number, name, type, captured, onCapture }) {
   return (
     // Le style change si le Pokémon est capturé
     <View style={[styles.carte, captured && styles.carteCapturee]}>
       <Image source={{ uri: `${ARTWORK}${number}.png` }} style={styles.image} />
       <Text style={styles.numero}>#{number}</Text>
-      <Link
-        style={styles.nom}
-        href={{
-          pathname: "/pokemon/pokemon",
-          params: { number: String(number) },
-        }}
-      >
-        {name}
-      </Link>
+      <Text style={styles.nom}>{name}</Text>
       <Text style={styles.type}>{type}</Text>
 
       {/* Au clic, on appelle la fonction reçue : c'est l'écran qui modifie le state */}

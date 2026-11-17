@@ -1,36 +1,29 @@
-import { Link, Tabs } from "expo-router";
-import { Text, StyleSheet } from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import AntDesign from "@expo/vector-icons/AntDesign";
+// Correction TP 5 · partie 2
+// Fichier : src/app/(tabs)/_layout.js
+// La barre d'onglets en bas de l'écran
+
+import { Tabs } from "expo-router";
+import FontAwesome from "@expo/vector-icons/FontAwesome"; // bonus : les icônes
 
 export default function TabsLayout() {
   return (
-    <Tabs>
+    <Tabs screenOptions={{ tabBarActiveTintColor: "#E03131" }}>
+      {/* name = le nom du fichier, title = le texte affiché */}
       <Tabs.Screen
         name="index"
         options={{
           title: "Pokédex",
-
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons size={28} name="home" color={color} />
-          ),
+          // bonus : color est la couleur de l'onglet (rouge s'il est actif)
+          tabBarIcon: ({ color }) => <FontAwesome name="list" size={24} color={color} />,
         }}
-      ></Tabs.Screen>
+      />
       <Tabs.Screen
         name="profil"
         options={{
           title: "Profil",
-          tabBarIcon: ({ color }) => (
-            <AntDesign name="smile" size={24} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <FontAwesome name="user" size={24} color={color} />,
         }}
       />
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  link: {
-    fontWeight: "semibold",
-  },
-});

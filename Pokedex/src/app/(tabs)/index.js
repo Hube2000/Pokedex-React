@@ -1,19 +1,50 @@
-// Correction TP 4 : le Pokédex avec FlatList
-// Fichier : src/app/index.js
+// Correction TP 5 : le Pokédex, déplacé dans le dossier (tabs)
+// Fichier : src/app/(tabs)/index.js
+// Nouveau par rapport au TP 4 : les imports avec ../../ et le Pressable qui ouvre la fiche
 // Les données viennent de src/data/pokemons.js (100 Pokémon : { number, name, type })
-
-import { useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+// Le fichier est maintenant dans (tabs)/ : il faut remonter de 2 dossiers
 import PokemonCard from "../../components/PokemonCard";
-import POKEMONS from "../../data/pokemons";
-import { Link } from "expo-router";
+
+const API = "https://pokeapi.co/api/v2/pokemon/";
 
 export default function Index() {
+  const [pokemons, setPokemons] = useState(null);
+  const [captured, setCaptured] = useState([]);
+  const [capturesSeulement, setCapturesSeulement] = useState(false);
+
+  async function charger() {
+    const reponse = await fetch(API);
+    const data = await reponse.json();
+    const liste = data.results.map((p, i) => ({
+      number: i + 1,
+      name: p.name,
+      // type: p.types[0].type.name,
+      // height: p.height / 10,
+      // weight: p.weight / 10,
+    }));
+    setPokemons(liste);
+  }
+  useEffect(() => {
+    charger();
+  }, []);
+
+  if (pokemons === null) {
+    return <ActivityIndicator size="large"></ActivityIndicator>;
+  }
   // ===== Partie 2 : les captures sont remontées dans l'écran =====
   // Un tableau de numéros : [25, 4, 7] = Pikachu, Salamèche et Carapuce capturés
-  const [captured, setCaptured] = useState([]);
   // true = on n'affiche que les Pokémon capturés
-  const [capturesSeulement, setCapturesSeulement] = useState(false);
+
   // Capturer ou relâcher un Pokémon (même principe que aimer(id) pour les posts)
   function capturer(number) {
     if (captured.includes(number)) {
@@ -27,8 +58,8 @@ export default function Index() {
 
   // La liste à afficher : tous les Pokémon, ou seulement les capturés
   const visibles = capturesSeulement
-    ? POKEMONS.filter((p) => captured.includes(p.number))
-    : POKEMONS;
+    ? pokemons.filter((p) => captured.includes(p.number))
+    : pokemons;
 
   return (
     // ===== Partie 1 : la FlatList en grille =====
@@ -41,7 +72,6 @@ export default function Index() {
       extraData={captured} // redessine la liste quand les captures changent
       ListHeaderComponent={
         <View style={styles.entete}>
-          <Text style={styles.titre}>Pokédex</Text>
           <Text style={styles.compteur}>{captured.length} capturés</Text>
           <Pressable
             style={styles.bouton}
@@ -57,14 +87,20 @@ export default function Index() {
         <Text style={styles.vide}>Aucun Pokémon capturé pour l'instant.</Text>
       }
       renderItem={({ item }) => (
-        // Parenthèses après la flèche : on renvoie directement le JSX
-        <PokemonCard
-          number={item.number}
-          name={item.name}
-          type={item.type}
-          captured={captured.includes(item.number)} // true ou false
-          onCapture={() => capturer(item.number)}
-        />
+        // TP 5 : toucher la carte ouvre la fiche, par exemple /pokemon/25
+        // flex: 1 pour que la carte garde la moitié de la largeur
+        <Pressable
+          style={{ flex: 1 }}
+          onPress={() => router.push(`/pokemon/${item.number}`)}
+        >
+          <PokemonCard
+            number={item.number}
+            name={item.name}
+            type={item.type}
+            captured={captured.includes(item.number)} // true ou false
+            onCapture={() => capturer(item.number)} // la carte prévient l'écran
+          />
+        </Pressable>
       )}
     />
   );
