@@ -15,7 +15,7 @@ import {
 // Le fichier est maintenant dans (tabs)/ : il faut remonter de 2 dossiers
 import PokemonCard from "../../components/PokemonCard";
 
-const API = "https://pokeapi.co/api/v2/pokemon/";
+const API = "https://pokeapi.co/api/v2/pokemon?limit=151";
 
 export default function Index() {
   const [pokemons, setPokemons] = useState(null);

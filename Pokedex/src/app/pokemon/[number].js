@@ -3,7 +3,8 @@
 // Les crochets : une seule page pour tous les Pokémon (/pokemon/1, /pokemon/25…)
 
 import { Stack, useLocalSearchParams } from "expo-router";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 // Le fichier est dans pokemon/ : il faut remonter de 2 dossiers
 
 const ARTWORK =
@@ -11,25 +12,34 @@ const ARTWORK =
   "/master/sprites/pokemon/other/official-artwork/";
 
 export default function FichePokemon() {
-  // On lit le numéro dans l'adresse. Attention : c'est un texte, "25"
   const { number } = useLocalSearchParams();
+  const [pok, setPok] = useState(null);
+  useEffect(() => {
+    async function charger() {
+      const reponse = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${number}`,
+      );
+      const data = await reponse.json();
+      setPok(data);
+    }
+    charger();
+  }, [number]);
 
-  // find renvoie le premier Pokémon dont le numéro correspond
-  // Number() transforme le texte "25" en nombre 25
-  const pokemon = POKEMONS.find((p) => p.number === Number(number));
+  if (pok === null) {
+    return <ActivityIndicator size="large" style={{ flex: 1 }} />;
+  }
 
   return (
     <View style={styles.page}>
       {/* Le nom du Pokémon dans la barre du haut */}
-      <Stack.Screen options={{ title: pokemon.name }} />
+      <Stack.Screen options={{ title: pok.name }} />
 
-      <Image
-        source={{ uri: `${ARTWORK}${pokemon.number}.png` }}
-        style={styles.image}
-      />
-      <Text style={styles.numero}>#{pokemon.number}</Text>
-      <Text style={styles.nom}>{pokemon.name}</Text>
-      <Text style={styles.type}>{pokemon.type}</Text>
+      <Image source={{ uri: `${ARTWORK}${pok.id}.png` }} style={styles.image} />
+      <Text style={styles.numero}>#{pok.id}</Text>
+      <Text style={styles.nom}>{pok.name}</Text>
+      <Text style={styles.type}>{pok.types[0].type.name}</Text>
+      <Text style={styles.subData}>{pok.height / 10} m </Text>
+      <Text style={styles.subData}>{pok.weight / 10} Kg </Text>
     </View>
   );
 }
@@ -61,5 +71,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFE066",
     fontWeight: "bold",
     overflow: "hidden",
+  },
+  subData: {
+    fontSize: 16,
+    color: "#999",
   },
 });
